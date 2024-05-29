@@ -1,9 +1,66 @@
-const chai = require('chai');
-let assert = chai.assert;
-const ConvertHandler = require('../controllers/convertHandler.js');
+const chai = require("chai");
+const assert = chai.assert;
+const ConvertHandler = require("../controllers/convertHandler.js"); // Adjust path as needed
 
 let convertHandler = new ConvertHandler();
 
-suite('Unit Tests', function(){
+suite("Unit Tests", function () {
+  test("should correctly read a whole number input", function () {
+    assert.strictEqual(convertHandler.getNum("32L"), 32);
+  });
 
+  test("should correctly read a decimal number input", function () {
+    assert.strictEqual(convertHandler.getNum("3.2L"), 3.2);
+  });
+
+  test("should correctly read a fractional input", function () {
+    assert.strictEqual(convertHandler.getNum("1/2L"), 0.5);
+  });
+
+  test("should correctly read a fractional input with a decimal", function () {
+    assert.strictEqual(convertHandler.getNum("1.5/3L"), 0.5);
+  });
+
+  test("should return an error for a double-fraction input", () => {
+    assert.equal(convertHandler.getNum("3/2/3L"), undefined);
+  });
+
+  test("should default to a numerical input of 1 when no numerical input is provided", () => {
+    assert.equal(convertHandler.getNum("L"), 1);
+  });
+
+  test("should correctly read each valid input unit", function () {
+    const units = ["gal", "l", "mi", "km", "lbs", "kg"];
+    units.forEach((unit) => {
+      assert.strictEqual(convertHandler.getUnit("32" + unit), unit);
+    });
+  });
+
+  test("should correctly return an error for an invalid input unit", function () {
+    assert.strictEqual(convertHandler.getUnit("32g"), "invalid unit");
+  });
+
+  test("should correctly convert gal to L", function () {
+    assert.strictEqual(convertHandler.convert(1, "gal"), 3.78541);
+  });
+
+  test("should correctly convert L to gal", function () {
+    assert.strictEqual(convertHandler.convert(1, "L"), 1 / 3.78541);
+  });
+
+  test("should correctly convert mi to km", function () {
+    assert.strictEqual(convertHandler.convert(1, "mi"), 1.60934);
+  });
+
+  test("should correctly convert km to mi", function () {
+    assert.strictEqual(convertHandler.convert(1, "km"), 1 / 1.60934);
+  });
+
+  test("should correctly convert lbs to kg", function () {
+    assert.strictEqual(convertHandler.convert(1, "lbs"), 0.453592);
+  });
+
+  test("should correctly convert kg to lbs", function () {
+    assert.strictEqual(convertHandler.convert(1, "kg"), 1 / 0.453592);
+  });
 });

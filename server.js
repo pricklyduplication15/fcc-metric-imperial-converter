@@ -1,59 +1,44 @@
-'use strict';
+const express = require("express");
+const bodyParser = require("body-parser");
+const ConvertHandler = require("./controllers/convertHandler"); // Adjust path as needed
 
-const express     = require('express');
-const bodyParser  = require('body-parser');
-const expect      = require('chai').expect;
-const cors        = require('cors');
-require('dotenv').config();
-
-const apiRoutes         = require('./routes/api.js');
-const fccTestingRoutes  = require('./routes/fcctesting.js');
-const runner            = require('./test-runner');
-
-let app = express();
-
-app.use('/public', express.static(process.cwd() + '/public'));
-
-app.use(cors({origin: '*'})); //For FCC testing purposes only
+const app = express();
+const convertHandler = new ConvertHandler();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//Index page (static HTML)
-app.route('/')
-  .get(function (req, res) {
-    res.sendFile(process.cwd() + '/views/index.html');
-  });
-
-//For FCC testing purposes
-fccTestingRoutes(app);
-
-//Routing for API 
-apiRoutes(app);  
-    
-//404 Not Found Middleware
-app.use(function(req, res, next) {
-  res.status(404)
-    .type('text')
-    .send('Not Found');
+app.route("/").get(function (req, res) {
+  res.sendFile(process.cwd() + "/views/index.html");
 });
 
-const port = process.env.PORT || 3000;
+app.get("/api/convert", (req, res) => {
+  const input = req.query.input;
+  const initNum = convertHandler.getNum(input);
+  const initUnit = convertHandler.getUnit(input);
 
-//Start our server and tests!
-app.listen(port, function () {
-  console.log("Listening on port " + port);
-  if(process.env.NODE_ENV==='test') {
-    console.log('Running Tests...');
-    setTimeout(function () {
-      try {
-        runner.run();
-      } catch(e) {
-          console.log('Tests are not valid:');
-          console.error(e);
-      }
-    }, 1500);
+  if (initNum === "invalid number" && initUnit === "invalid unit") {
+    res.status(400).json({ error: "invalid number and unit" });
+  } else if (initNum === "invalid number") {
+    res.status(400).json({ error: "invalid number" });
+  } else if (initUnit === "invalid unit") {
+    res.status(400).json({ error: "invalid unit" });
+  } else {
+    const returnNum = convertHandler.convert(initNum, initUnit);
+    const returnUnit = convertHandler.getReturnUnit(initUnit);
+    const string = convertHandler.getString(
+      initNum,
+      initUnit,
+      returnNum,
+      returnUnit
+    );
+    res.json({ initNum, initUnit, returnNum, returnUnit, string });
   }
 });
 
-module.exports = app; //for testing
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+module.exports = app; // For testing purposes
