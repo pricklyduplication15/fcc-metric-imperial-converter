@@ -30,7 +30,7 @@ suite("Unit Tests", function () {
   });
 
   test("should correctly read each valid input unit", function () {
-    const units = ["gal", "l", "mi", "km", "lbs", "kg"];
+    const units = ["GAL", "L", "MI", "KM", "LBS", "KG"];
     units.forEach((unit) => {
       assert.strictEqual(convertHandler.getUnit("32" + unit), unit);
     });
