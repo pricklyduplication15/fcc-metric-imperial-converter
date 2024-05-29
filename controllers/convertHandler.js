@@ -14,6 +14,7 @@ function ConvertHandler() {
 
     return [number[0], string];
   }
+
   function checkDiv(possibleFraction) {
     let nums = possibleFraction.split("/");
     if (nums.length > 2) {
@@ -30,10 +31,10 @@ function ConvertHandler() {
     }
     let num1 = nums[0];
     let num2 = nums[1] || "1";
-    result = parseFloat(num1) / parseFloat(num2);
     if (isNaN(num1) || isNaN(num2)) {
       return undefined;
     }
+    result = parseFloat(num1) / parseFloat(num2);
     return result;
   };
 
@@ -60,7 +61,9 @@ function ConvertHandler() {
     return units[initUnit.toLowerCase()];
   };
 
-  this.spellOutUnit = function (unit) {
+  this.spellOutUnit = function (initUnit) {
+    if (!initUnit) return "unknown unit";
+
     const unitNames = {
       gal: "gallons",
       l: "liters",
@@ -70,7 +73,7 @@ function ConvertHandler() {
       kg: "kilograms",
     };
 
-    return unitNames[unit.toLowerCase()];
+    return unitNames[initUnit.toLowerCase()];
   };
 
   this.convert = function (initNum, initUnit) {
@@ -83,12 +86,6 @@ function ConvertHandler() {
       kg: initNum / lbsToKg,
       mi: initNum * miToKm,
       km: initNum / miToKm,
-      GAL: initNum * galToL,
-      L: initNum / galToL,
-      LBS: initNum * lbsToKg,
-      KG: initNum / lbsToKg,
-      MI: initNum * miToKm,
-      KM: initNum / miToKm,
     };
 
     return conversions[initUnit.toLowerCase()];
