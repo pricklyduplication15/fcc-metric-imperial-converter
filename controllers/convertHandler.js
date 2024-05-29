@@ -49,7 +49,7 @@ function ConvertHandler() {
 
   this.getReturnUnit = function (initUnit) {
     const units = {
-      GAL: "l",
+      GAL: "L",
       L: "gal",
       MI: "km",
       KM: "mi",
@@ -60,14 +60,10 @@ function ConvertHandler() {
     return units[initUnit.toUpperCase()];
   };
 
-  this.spellOutUnit = function (initUnit) {
-    if (typeof initUnit !== "string") {
-      return "don't know";
-    }
+  this.spellOutUnit = function (unit) {
+    let unitUpper = unit.toUpperCase();
 
-    let unit = initUnit.toUpperCase();
-
-    switch (unit) {
+    switch (unitUpper) {
       case "KM":
         return "kilometers";
       case "GAL":
@@ -101,7 +97,6 @@ function ConvertHandler() {
   };
 
   this.getString = function (initNum, initUnit, returnNum, returnUnit) {
-    // Ensure units are valid
     if (typeof initUnit !== "string" || typeof returnUnit !== "string") {
       return "Invalid unit";
     }
