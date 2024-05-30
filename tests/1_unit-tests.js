@@ -4,6 +4,8 @@ const ConvertHandler = require("../controllers/convertHandler.js"); // Adjust pa
 
 let convertHandler = new ConvertHandler();
 
+const units = ["L", "gal", "mi", "km", "lbs", "kg"];
+
 suite("Unit Tests", function () {
   test("should correctly read a whole number input", function () {
     assert.strictEqual(convertHandler.getNum("32L"), 32);
@@ -30,7 +32,6 @@ suite("Unit Tests", function () {
   });
 
   test("should correctly read each valid input unit", function () {
-    const units = ["GAL", "L", "MI", "KM", "LBS", "KG"];
     units.forEach((unit) => {
       assert.strictEqual(convertHandler.getUnit("32" + unit), unit);
     });
@@ -38,6 +39,34 @@ suite("Unit Tests", function () {
 
   test("should correctly return an error for an invalid input unit", function () {
     assert.strictEqual(convertHandler.getUnit("32g"), "invalid unit");
+  });
+
+  test("should return the correct return unit for each valid input unit.", function () {
+    units.forEach((unit) => {
+      assert.strictEqual(
+        convertHandler.getReturnUnit(unit),
+        convertHandler.getReturnUnit(unit)
+      );
+    });
+  });
+
+  test("should correctly return the spelled-out string unit for each valid input unit.", function () {
+    units.forEach((unit) => {
+      const expectedString = `1 ${convertHandler.spellOutUnit(
+        unit
+      )} converts to 1 ${convertHandler.spellOutUnit(
+        convertHandler.getReturnUnit(unit)
+      )}`;
+      assert.strictEqual(
+        convertHandler.getString(
+          1,
+          unit,
+          1,
+          convertHandler.getReturnUnit(unit)
+        ),
+        expectedString
+      );
+    });
   });
 
   test("should correctly convert gal to L", function () {

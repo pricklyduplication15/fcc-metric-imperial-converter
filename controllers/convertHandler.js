@@ -1,115 +1,114 @@
 function ConvertHandler() {
-  const galToL = 3.78541;
-  const lbsToKg = 0.453592;
-  const miToKm = 1.60934;
-
-  this.isValidUnit = function (unit) {
-    const validUnits = ["GAL", "L", "MI", "KM", "LBS", "KG"];
-    return validUnits.includes(unit.toUpperCase());
-  };
-
-  function numberStringSplitter(input) {
-    let number = input.match(/[.\d\/]+/g) || ["1"];
-    let string = input.match(/[a-zA-Z]+/g)[0];
-    return [number[0], string];
-  }
-
-  function checkDiv(possibleFraction) {
-    let nums = possibleFraction.split("/");
-    if (nums.length > 2) {
-      return false;
-    }
-    return nums;
-  }
-
   this.getNum = function (input) {
-    let result = numberStringSplitter(input)[0];
-    let nums = checkDiv(result);
-    if (!nums) {
-      return undefined;
+    // Split the input into number and unit parts
+    const match = input.match(/[a-zA-Z]+|[^a-zA-Z]+/g);
+    const numStr = match && match[0].match(/[a-zA-Z]/) ? "" : match[0];
+    const unit = match ? match.find((e) => /[a-zA-Z]/.test(e)) : "";
+
+    // If numStr is empty, default to 1
+    if (!numStr) return 1;
+
+    // Handle fractions and detect double-fractions
+    if ((numStr.match(/\//g) || []).length > 1) {
+      return undefined; // return undefined for double-fraction input
     }
-    let num1 = nums[0];
-    let num2 = nums[1] || "1";
-    if (isNaN(num1) || isNaN(num2)) {
-      return undefined;
+
+    let result;
+    if (numStr.includes("/")) {
+      const [numerator, denominator] = numStr.split("/");
+      result = parseFloat(numerator) / parseFloat(denominator);
+    } else {
+      result = parseFloat(numStr);
     }
-    result = parseFloat(num1) / parseFloat(num2);
-    return result;
+
+    // Check if result is NaN
+    return isNaN(result) ? undefined : result;
   };
 
   this.getUnit = function (input) {
-    const unitsRegex = /[a-zA-Z]+$/;
-    const match = input.match(unitsRegex);
-
-    if (!match) return "invalid unit";
-    const unit = match[0].toUpperCase();
-
-    return this.isValidUnit(unit) ? unit : "invalid unit";
+    const match = input.match(/[a-zA-Z]+/g);
+    const unit = match ? match[0].toLowerCase() : "invalid unit";
+    const validUnits = ["gal", "l", "mi", "km", "lbs", "kg"];
+    return validUnits.includes(unit)
+      ? unit === "l"
+        ? "L"
+        : unit
+      : "invalid unit";
   };
 
   this.getReturnUnit = function (initUnit) {
-    const units = {
-      GAL: "L",
-      L: "gal",
-      MI: "km",
-      KM: "mi",
-      LBS: "kg",
-      KG: "lbs",
+    const unitMap = {
+      gal: "L",
+      l: "gal",
+      mi: "km",
+      km: "mi",
+      lbs: "kg",
+      kg: "lbs",
     };
-
-    return units[initUnit.toUpperCase()];
+    return unitMap[initUnit.toLowerCase()];
   };
 
   this.spellOutUnit = function (unit) {
-    let unitUpper = unit.toUpperCase();
-
-    switch (unitUpper) {
-      case "KM":
-        return "kilometers";
-      case "GAL":
-        return "gallons";
-      case "LBS":
-        return "pounds";
-      case "MI":
-        return "miles";
-      case "L":
-        return "liters";
-      case "KG":
-        return "kilograms";
-      default:
-        return "don't know";
-    }
+    const spellings = {
+      gal: "gallons",
+      L: "liters",
+      mi: "miles",
+      km: "kilometers",
+      lbs: "pounds",
+      kg: "kilograms",
+    };
+    return spellings[unit === "l" ? "L" : unit];
   };
 
   this.convert = function (initNum, initUnit) {
-    if (isNaN(initNum)) return NaN; // Return NaN for invalid numbers
+    const galToL = 3.78541;
+    const lbsToKg = 0.453592;
+    const miToKm = 1.60934;
 
-    const conversions = {
-      GAL: initNum * galToL,
-      L: initNum / galToL,
-      LBS: initNum * lbsToKg,
-      KG: initNum / lbsToKg,
-      MI: initNum * miToKm,
-      KM: initNum / miToKm,
-    };
-
-    return conversions[initUnit.toUpperCase()];
+    let result;
+    switch (initUnit.toLowerCase()) {
+      case "gal":
+        result = initNum * galToL;
+        break;
+      case "l":
+        result = initNum / galToL;
+        break;
+      case "lbs":
+        result = initNum * lbsToKg;
+        break;
+      case "kg":
+        result = initNum / lbsToKg;
+        break;
+      case "mi":
+        result = initNum * miToKm;
+        break;
+      case "km":
+        result = initNum / miToKm;
+        break;
+      default:
+        result = undefined;
+    }
+    return result;
   };
 
   this.getString = function (initNum, initUnit, returnNum, returnUnit) {
-    if (typeof initUnit !== "string" || typeof returnUnit !== "string") {
-      return "Invalid unit";
+    if (initUnit === "invalid unit" || !initNum) {
+      return "invalid input";
     }
 
-    const spelledOutInitUnit = this.spellOutUnit(initUnit);
-    const spelledOutReturnUnit = this.spellOutUnit(returnUnit);
+    const spellOutInitUnit = this.spellOutUnit(initUnit);
+    const spellOutReturnUnit = this.spellOutUnit(returnUnit);
 
-    let formattedInitUnit =
-      initUnit.toLowerCase() === "l" ? "L" : initUnit.toLowerCase();
-    let formattedReturnUnit =
-      returnUnit.toLowerCase() === "l" ? "L" : returnUnit.toLowerCase();
+    const formatter = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 5, // Adjust the precision here
+    });
 
-    return `${initNum} ${spelledOutInitUnit} converts to ${returnNum} ${spelledOutReturnUnit}`;
+    return `${formatter.format(
+      initNum
+    )} ${spellOutInitUnit} converts to ${formatter.format(
+      returnNum
+    )} ${spellOutReturnUnit}`;
   };
 }
 
