@@ -11,13 +11,13 @@ module.exports = function (app) {
     let initNum = convertHandler.getNum(input);
     let initUnit = convertHandler.getUnit(input);
     if (!initNum && !initUnit) {
-      res.send("invalid number and unit");
+      res.json({ error: "invalid number and unit" });
       return;
     } else if (!initNum) {
-      res.send("invalid number");
+      res.json({ error: "invalid number" });
       return;
     } else if (!initUnit) {
-      res.send("invalid unit");
+      res.json({ error: "invalid unit" });
       return;
     }
     let returnNum = convertHandler.convert(initNum, initUnit);
@@ -29,7 +29,22 @@ module.exports = function (app) {
       returnUnit
     );
 
-    //res.json
-    res.json({ initNum, initUnit, returnNum, returnUnit, string: toString });
+    // Log the response object
+    console.log({
+      initNum: initNum,
+      initUnit: initUnit,
+      returnNum: returnNum,
+      returnUnit: returnUnit,
+      string: toString,
+    });
+
+    // Send the response as JSON
+    res.json({
+      initNum: initNum,
+      initUnit: initUnit,
+      returnNum: returnNum,
+      returnUnit: returnUnit,
+      string: toString,
+    });
   });
 };

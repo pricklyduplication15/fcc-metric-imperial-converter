@@ -24,7 +24,7 @@ suite("Unit Tests", function () {
   });
 
   test("should return an error for a double-fraction input", () => {
-    assert.equal(convertHandler.getNum("3/2/3L"), undefined);
+    assert.equal(convertHandler.getNum("3/2/3L"), "invalid number");
   });
 
   test("should default to a numerical input of 1 when no numerical input is provided", () => {
