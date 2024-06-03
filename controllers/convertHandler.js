@@ -78,27 +78,27 @@ function ConvertHandler() {
     let result;
     switch (initUnit.toLowerCase()) {
       case "gal":
-        result = initNum * galToL;
+        result = (initNum * galToL).toFixed(5);
         break;
       case "l":
-        result = initNum / galToL;
+        result = (initNum / galToL).toFixed(5);
         break;
       case "lbs":
-        result = initNum * lbsToKg;
+        result = (initNum * lbsToKg).toFixed(5);
         break;
       case "kg":
-        result = initNum / lbsToKg;
+        result = (initNum / lbsToKg).toFixed(5);
         break;
       case "mi":
-        result = initNum * miToKm;
+        result = (initNum * miToKm).toFixed(5);
         break;
       case "km":
-        result = initNum / miToKm;
+        result = (initNum / miToKm).toFixed(5);
         break;
       default:
         result = undefined;
     }
-    return result;
+    return parseFloat(result);
   };
 
   this.getString = function (initNum, initUnit, returnNum, returnUnit) {
@@ -113,16 +113,7 @@ function ConvertHandler() {
     const spellOutInitUnit = this.spellOutUnit(initUnit);
     const spellOutReturnUnit = this.spellOutUnit(returnUnit);
 
-    const formatter = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 5,
-    });
-
-    return `${formatter.format(
-      initNum
-    )} ${spellOutInitUnit} converts to ${formatter.format(
-      returnNum
-    )} ${spellOutReturnUnit}`;
+    return `${initNum} ${spellOutInitUnit} converts to ${returnNum} ${spellOutReturnUnit}`;
   };
 }
 
